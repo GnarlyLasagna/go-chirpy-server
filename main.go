@@ -13,11 +13,11 @@ import (
 )
 
 
-
 type apiConfig struct {
 	fileserverHits int
 	DB             *database.DB
 	jwtSecret      string
+	polkaKey       string
 }
 
 func main() {
@@ -29,6 +29,10 @@ func main() {
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
 		log.Fatal("JWT_SECRET environment variable is not set")
+	}
+	polkaKey := os.Getenv("POLKA_KEY")
+	if polkaKey == "" {
+		log.Fatal("POLKA_KEY environment variable is not set")
 	}
 
 	db, err := database.NewDB("database.json")
@@ -49,6 +53,7 @@ func main() {
 		fileserverHits: 0,
 		DB:             db,
 		jwtSecret:      jwtSecret,
+		polkaKey:       polkaKey,
 	}
 
 	router := chi.NewRouter()
@@ -59,6 +64,8 @@ func main() {
 	apiRouter := chi.NewRouter()
 	apiRouter.Get("/healthz", handlerReadiness)
 	apiRouter.Get("/reset", apiCfg.handlerReset)
+
+	apiRouter.Post("/polka/webhooks", apiCfg.handlerWebhook)
 
 	apiRouter.Post("/revoke", apiCfg.handlerRevoke)
 	apiRouter.Post("/refresh", apiCfg.handlerRefresh)

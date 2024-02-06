@@ -11,6 +11,7 @@ import (
     "github.com/GnarlyLasagna/go-chirpy-server/internal/auth"
 )
 
+
 type Chirp struct {
 	ID       int    `json:"id"`
 	AuthorID int    `json:"author_id"`
